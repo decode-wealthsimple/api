@@ -2,9 +2,10 @@ source 'https://rubygems.org'
 
 
 gem 'rails', '4.2.7.1'
-
+gem 'rest-client'
 gem 'rails-api'
-
+gem 'byebug'
+gem 'json'
 gem 'spring', :group => :development
 
 
