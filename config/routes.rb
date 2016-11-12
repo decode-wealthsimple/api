@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
   resources :trips
+  resources :cities
   get 'trips/:id/estimate', :to => 'trips#estimate'
 
   # The priority is based upon order of creation: first created -> highest priority.
@@ -58,6 +59,6 @@ Rails.application.routes.draw do
   #     resources :products
   #   end
 
-  get  'nomad/cities', to: 'nomad#cities' 
+  get  'nomad/cities', to: 'nomad#cities'
   get  'nomad/cities/:url/image', to: 'nomad#image'
 end
