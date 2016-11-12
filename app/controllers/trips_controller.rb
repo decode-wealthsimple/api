@@ -5,7 +5,17 @@ class TripsController < ApplicationController
   before_action :set_trip, only: [:show, :update, :destroy, :estimate]
 
   def create
-    @trip = Trip.create!(trip_params)
+    # debugger
+    total_amt = total_amount(Date.parse(trip_params[:start]), Date.parse(trip_params[:start]) + trip_params[:duration].to_i, City.find(trip_params[:origin]), City.find(trip_params[:destination]), trip_params[:style].to_i)
+    @trip = Trip.create!({
+        origin: City.find(trip_params[:origin]),
+        destination: City.find(trip_params[:destination]),
+        start: Date.parse(trip_params[:start]),
+        end: Date.parse(trip_params[:start]) + trip_params[:duration].to_i,
+        style: trip_params[:style].to_i,
+        total_amount: total_amt,
+        saved_amount: 0
+      })
     render json: @trip
   end
 
@@ -15,6 +25,7 @@ class TripsController < ApplicationController
 
   def update
     @trip.update!(trip_params)
+    @trip.total_amount = estimate
   end
 
   def destroy
@@ -22,19 +33,13 @@ class TripsController < ApplicationController
   end
 
   def estimate
-    duration = (@trip.end - @trip.start).to_i
-    per_day_cost = average_city_daily_cost(@trip)
-
-    total_flight_cost = flight_cost(@trip.origin.airport, @trip.destination.airport, @trip.start.to_s) +
-                        flight_cost(@trip.destination.airport, @trip.origin.airport, @trip.end.to_s)
-    total_amount = { total: per_day_cost * duration + total_flight_cost }
-    puts total_amount
-    render json: total_amount
+    render json: { total: total_amount }
   end
 
   private
 
   def flight_cost(origin, destination, date)
+    # debugger
     begin
       flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],
         {
@@ -74,18 +79,28 @@ class TripsController < ApplicationController
   end
 
   def trip_params
-    params.require(:trip).permit(:origin, :destination, :start, :end, :style, :saved_amount, :total_amount)
+    params.permit(:origin, :destination, :start, :duration, :style, :saved_amount)
   end
 
   def set_trip
     @trip = Trip.find(params[:id])
   end
 
-  def average_city_daily_cost(trip)
-    city_url = trip.destination.url
+  def average_city_daily_cost(destination)
+    city_url = destination.url
 
     res = RestClient.get('https://nomadlist.com/api/v2/list/cities/'+ city_url, headers={})
     json = JSON.parse(res.body)
     cost = json["result"][0]["cost"]["nomad"]["USD"].to_i / 30
+  end
+
+  def total_amount(t_start, t_end, origin, destination, style)
+    # debugger
+    duration = (t_end - t_start).to_i
+    per_day_cost = average_city_daily_cost(destination)
+
+    total_flight_cost = flight_cost(origin.airport, destination.airport, t_start.to_s) +
+                        flight_cost(destination.airport, origin.airport, t_end.to_s)
+    (per_day_cost * duration + total_flight_cost) * (0.7 + 0.3 * (style - 1))
   end
 end
