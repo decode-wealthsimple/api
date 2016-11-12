@@ -10,7 +10,7 @@
 5.times {
   Trip.create({
     origin: "YUL",
-    destination: "LAX",
+    destination: "los-angeles-ca-united-states",
     start: Date.new(2016, 3, 12),
     end: Date.new(2016, 4, 12),
     style: rand(1..3),

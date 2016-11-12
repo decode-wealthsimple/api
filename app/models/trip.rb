@@ -7,7 +7,7 @@ class Trip < ActiveRecord::Base
 
   def estimate
     duration = (self.end - self.start)
-    per_day_cost = RestClient.get("/nomad/cities/" + self.destination + "/cost", headers={}).to_i / 30
+    per_day_cost = RestClient.get("http://localhost:3000/nomad/cities/" + self.destination + "/cost", headers={}).to_i / 30
 
     #PLANES
     flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"], 
