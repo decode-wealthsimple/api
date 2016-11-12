@@ -25,7 +25,14 @@ class TripsController < ApplicationController
     duration = (@trip.end - @trip.start)
     per_day_cost = average_city_cost(@trip)
 
-    #PLANES
+    total_flight_cost = flight_cost(@trip.origin.airport, @trip.destination.airport, @trip.start.to_s) +
+                        flight_cost(@trip.destination.airport, @trip.origin.airport, @trip.end.to_s)
+    per_day_cost * duration + total_flight_cost
+  end
+
+  private
+
+  def flight_cost(origin, destination, date)
     flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],
       {
         "request": {
@@ -34,21 +41,17 @@ class TripsController < ApplicationController
           },
           "slice": [
             {
-              "origin": "YUL",
-              "destination": "LAX",
-              "date": "2017-09-19"
+              "origin": origin,
+              "destination": destination,
+              "date": date
             }
           ],
           "solutions": "1"
         }
       }.to_json)["trips"]["tripOption"]["saleTotal"]
 
-    flight_cost = flight_cost.gsub(/[a-zA-Z]/, "").to_i
-
-    per_day_cost * duration + flight_cost
+    flight_cost.gsub(/[a-zA-Z]/, "").to_i
   end
-
-  private
 
   def trip_params
     params.require(:trip).permit(:origin, :destination, :start, :end, :style, :saved_amount, :total_amount)

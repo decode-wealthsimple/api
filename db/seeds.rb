@@ -33,9 +33,9 @@ airports.each do |airport|
   end
 end
 
-Trip.create{
-  origin_id: City.where(name: "Montreal").id,
-  destination_id: City.where(name: "Tokyo").id,
+Trip.create({
+  origin_id: City.where(name: "Montreal").first.id,
+  destination_id: City.where(name: "Tokyo").first.id,
   start: Date.new(2016, 3, 12),
   end: Date.new(2016, 4, 12),
   style: rand(1..3),
