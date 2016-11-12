@@ -59,6 +59,5 @@ Rails.application.routes.draw do
   #   end
 
   get  'nomad/cities', to: 'nomad#cities' 
-  get  'nomad/cities/:url/cost', to: 'nomad#cost'
   get  'nomad/cities/:url/image', to: 'nomad#image'
 end

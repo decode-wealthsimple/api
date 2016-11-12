@@ -6,11 +6,24 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+la = City.create({
+  name: "Los Angeles",
+  country: "USA",
+  airport: "LAX",
+  url: "los-angeles-ca-united-states"
+})
+
+montreal = City.create({
+  name: "Montreal",
+  country: "Canada",
+  airport: "YUL",
+  url: "montreal-canada"
+})
 
 5.times {
   Trip.create({
-    origin: "YUL",
-    destination: "los-angeles-ca-united-states",
+    origin_id: la.id,
+    destination_id: montreal.id,
     start: Date.new(2016, 3, 12),
     end: Date.new(2016, 4, 12),
     style: rand(1..3),

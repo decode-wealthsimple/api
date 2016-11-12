@@ -1,8 +1,10 @@
 require 'rest-client'
-require '../controllers/nomad_controller.rb'
 
 class Trip < ActiveRecord::Base
-  validates :origin, :destination, :start, :end, presence: true
+  belongs_to :origin, class_name: 'City', foreign_key: 'origin_id'
+  belongs_to :destination, class_name: 'City', foreign_key: 'destination_id'
+
+  validates :origin_id, :destination_id, :start, :end, presence: true
   validates :style, inclusion: 1..3
   validates :saved_amount, :total_amount, numericality: {greater_than_or_equal_to: 0}
 

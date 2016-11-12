@@ -13,11 +13,6 @@ class NomadController < ApplicationController
 		render json: cities
 	end
 
-	#returns cost of chosen destination
-	def cost
-
-	end
-
 	#returns full URL for the image of chosen city
 	def image
 		city_url = params[:url]

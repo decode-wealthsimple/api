@@ -1,3 +1,4 @@
+require 'json'
 class TripsController < ApplicationController
 
   before_action :set_trip, only: [:show, :update, :destroy, :estimate]
@@ -23,7 +24,6 @@ class TripsController < ApplicationController
   def estimate
     duration = (@trip.end - @trip.start)
     per_day_cost = average_city_cost(@trip)
-    RestClient.get("http://localhost:3000/nomad/cities/" + @trip.destination + "/cost", headers={}).to_i / 30
 
     #PLANES
     flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],

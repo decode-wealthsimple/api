@@ -11,18 +11,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161112001152) do
+ActiveRecord::Schema.define(version: 20161112015912) do
+
+  create_table "cities", force: :cascade do |t|
+    t.integer  "trip_id"
+    t.string   "name"
+    t.string   "country"
+    t.string   "airport"
+    t.string   "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "cities", ["trip_id"], name: "index_cities_on_trip_id"
 
   create_table "trips", force: :cascade do |t|
-    t.string   "destination"
+    t.integer  "origin_id"
+    t.integer  "destination_id"
     t.date     "start"
     t.date     "end"
     t.integer  "style"
     t.decimal  "saved_amount"
     t.decimal  "total_amount"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.string   "origin"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
   end
 
 end
