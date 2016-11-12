@@ -1,4 +1,5 @@
 require 'json'
+
 class TripsController < ApplicationController
 
   before_action :set_trip, only: [:show, :update, :destroy, :estimate]
@@ -20,37 +21,56 @@ class TripsController < ApplicationController
     @trip.destroy!
   end
 
-
   def estimate
-    duration = (@trip.end - @trip.start)
-    per_day_cost = average_city_cost(@trip)
+    duration = (@trip.end - @trip.start).to_i
+    per_day_cost = average_city_daily_cost(@trip)
 
     total_flight_cost = flight_cost(@trip.origin.airport, @trip.destination.airport, @trip.start.to_s) +
                         flight_cost(@trip.destination.airport, @trip.origin.airport, @trip.end.to_s)
-    per_day_cost * duration + total_flight_cost
+    total_amount = { total: per_day_cost * duration + total_flight_cost }
+    puts total_amount
+    render json: total_amount
   end
 
   private
 
   def flight_cost(origin, destination, date)
-    flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],
-      {
-        "request": {
-          "passengers": {
-            "adultCount": "1"
-          },
-          "slice": [
-            {
-              "origin": origin,
-              "destination": destination,
-              "date": date
-            }
-          ],
-          "solutions": "1"
-        }
-      }.to_json)["trips"]["tripOption"]["saleTotal"]
+    begin
+      flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],
+        {
+          "request": {
+            "slice": [
+              {
+                "origin": origin,
+                "destination": destination,
+                "date": date
+              }
+            ],
+            "passengers": {
+              "adultCount": 1,
+              "infantInLapCount": 0,
+              "infantInSeatCount": 0,
+              "childCount": 0,
+              "seniorCount": 0
+            },
+            "solutions": 1,
+            "refundable": false
+          }
+        }.to_json, {
+            content_type: :json
+          }
+        )
+        flight_cost = JSON.parse(flight_cost)["trips"]["tripOption"][0]["saleTotal"]
+        if flight_cost
+          flight_cost = flight_cost.gsub(/[a-zA-Z]/, "").to_i
+        else
+          0
+        end
+    rescue => e
+      puts(e.response)
+      render status: 500
+    end
 
-    flight_cost.gsub(/[a-zA-Z]/, "").to_i
   end
 
   def trip_params
@@ -61,12 +81,11 @@ class TripsController < ApplicationController
     @trip = Trip.find(params[:id])
   end
 
-  def average_city_cost(trip)
+  def average_city_daily_cost(trip)
     city_url = trip.destination.url
 
     res = RestClient.get('https://nomadlist.com/api/v2/list/cities/'+ city_url, headers={})
     json = JSON.parse(res.body)
-    cost = json["result"][0]["cost"]["nomad"]["USD"]
-    render json: { "cost": cost }
+    cost = json["result"][0]["cost"]["nomad"]["USD"].to_i / 30
   end
 end
