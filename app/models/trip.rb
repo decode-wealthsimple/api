@@ -1,7 +1,7 @@
 require 'rest-client'
 
 class Trip < ActiveRecord::Base
-  validates :destination, :start, :end, presence: true
+  validates :origin, :destination, :start, :end, presence: true
   validates :style, inclusion: 1..3
   validates :saved_amount, :total_amount, numericality: {greater_than_or_equal_to: 0}
 
@@ -10,7 +10,7 @@ class Trip < ActiveRecord::Base
     per_day_cost = RestClient.get("http://localhost:3000/nomad/cities/" + self.destination + "/cost", headers={}).to_i / 30
 
     #PLANES
-    flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"], 
+    flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],
       {
         "request": {
           "passengers": {
