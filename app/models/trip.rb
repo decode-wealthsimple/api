@@ -3,7 +3,7 @@ require 'rest-client'
 class Trip < ActiveRecord::Base
   validates :destination, :start, :end, presence: true
   validates :style, inclusion: 1..3
-  validates :saved_amount, :total_amount, numericality: greater_than_or_equal_to: 0
+  validates :saved_amount, :total_amount, numericality: {greater_than_or_equal_to: 0}
 
   def estimate
     duration = (self.end - self.start)
@@ -26,7 +26,7 @@ class Trip < ActiveRecord::Base
           "solutions": "1"
         }
       }.to_json)["trips"]["tripOption"]["saleTotal"]
-    
+
     flight_cost = flight_cost.gsub(/[a-zA-Z]/, "").to_i
 
     per_day_cost * duration + flight_cost
