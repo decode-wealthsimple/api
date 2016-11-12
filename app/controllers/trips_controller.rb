@@ -1,5 +1,6 @@
 class TripsController < ApplicationController
-  before_action :set_trip, only: [:show, :update, :destroy]
+
+  before_action :set_trip, only: [:show, :update, :destroy, :estimate]
 
   def create
     @trip = Trip.create!(trip_params)
@@ -18,6 +19,35 @@ class TripsController < ApplicationController
     @trip.destroy!
   end
 
+
+  def estimate
+    duration = (@trip.end - @trip.start)
+    per_day_cost = average_city_cost(@trip)
+    RestClient.get("http://localhost:3000/nomad/cities/" + @trip.destination + "/cost", headers={}).to_i / 30
+
+    #PLANES
+    flight_cost = RestClient.post("https://www.googleapis.com/qpxExpress/v1/trips/search?key=" + ENV["GOOGLE_API_KEY"],
+      {
+        "request": {
+          "passengers": {
+            "adultCount": "1"
+          },
+          "slice": [
+            {
+              "origin": "YUL",
+              "destination": "LAX",
+              "date": "2017-09-19"
+            }
+          ],
+          "solutions": "1"
+        }
+      }.to_json)["trips"]["tripOption"]["saleTotal"]
+
+    flight_cost = flight_cost.gsub(/[a-zA-Z]/, "").to_i
+
+    per_day_cost * duration + flight_cost
+  end
+
   private
 
   def trip_params
@@ -26,5 +56,14 @@ class TripsController < ApplicationController
 
   def set_trip
     @trip = Trip.find(params[:id])
+  end
+
+  def average_city_cost(trip)
+    city_url = trip.destination.url
+
+    res = RestClient.get('https://nomadlist.com/api/v2/list/cities/'+ city_url, headers={})
+    json = JSON.parse(res.body)
+    cost = json["result"][0]["cost"]["nomad"]["USD"]
+    render json: { "cost": cost }
   end
 end

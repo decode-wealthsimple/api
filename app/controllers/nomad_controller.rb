@@ -3,7 +3,6 @@ require 'json'
 
 class NomadController < ApplicationController
 
-	@@url = 'https://nomadlist.com/api/v2/list/cities'
 
 	#returns list of available cities
 	def cities
@@ -16,12 +15,7 @@ class NomadController < ApplicationController
 
 	#returns cost of chosen destination
 	def cost
-		city_url = params[:url]
 
-		res = RestClient.get(@@url + "/"+ city_url, headers={})
-		json = JSON.parse(res.body)
-		cost = json["result"][0]["cost"]["nomad"]["USD"]
-		render json: { "cost": cost }
 	end
 
 	#returns full URL for the image of chosen city
