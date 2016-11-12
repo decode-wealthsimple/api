@@ -20,3 +20,5 @@
 
 # Ignore local env
 /config/local_env.yml
+
+.env

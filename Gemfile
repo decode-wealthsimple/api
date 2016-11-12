@@ -7,8 +7,7 @@ gem 'rails-api'
 gem 'byebug'
 gem 'json'
 gem 'spring', :group => :development
-
-
+gem 'dotenv-rails'
 
 gem 'sqlite3'
 
