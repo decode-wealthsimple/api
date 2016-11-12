@@ -7,7 +7,7 @@ class NomadController < ApplicationController
 	#returns list of available cities
 	def cities
 		
-		res = RestClient.get(@@url, headers={})
+		res = RestClient.get('https://nomadlist.com/api/v2/list/cities/', headers={})
 		dict = JSON.parse(res.body)
 		cities = dict["result"].map{ |item| item["info"]["city"]}
 		render json: cities
