@@ -5,6 +5,9 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
+require 'json'
+require 'rest-client'
+require 'benchmark'
 
 # la = City.create({
 #   name: "Los Angeles",
@@ -43,8 +46,8 @@ def cities
   dict["result"].map{ |item| item["info"]["city"]}
 end
 
-airports = JSON.parse(File.read('db/data/airports.json'))
 
+airports = JSON.parse(File.read('db/data/airports.json')).uniq!{|airport| airport["city"]}
 saved_cities = cities
 
 airports.each do |airport|
@@ -59,4 +62,15 @@ airports.each do |airport|
       puts hello.id
     end
   end
+
 end
+
+Trip.create({
+  origin_id: City.where(name: "Montreal").id,
+  destination_id: City.where(name: "Tokyo").id,
+  start: Date.new(2016, 3, 12),
+  end: Date.new(2016, 4, 12),
+  style: rand(1..3),
+  saved_amount: 0.0,
+  total_amount: 0.0
+  })
