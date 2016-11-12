@@ -5,6 +5,7 @@ class NomadController < ApplicationController
 
 	@@url = 'https://nomadlist.com/api/v2/list/cities'
 
+	#returns list of available cities
 	def cities
 		
 		res = RestClient.get(@@url, headers={})
@@ -13,6 +14,7 @@ class NomadController < ApplicationController
 		render json: cities
 	end
 
+	#returns cost of chosen destination
 	def cost
 		city_url = params[:url]
 
@@ -22,6 +24,7 @@ class NomadController < ApplicationController
 		render json: { "cost": cost }
 	end
 
+	#returns full URL for the image of chosen city
 	def image
 		city_url = params[:url]
 
