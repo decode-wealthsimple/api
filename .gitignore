@@ -17,3 +17,6 @@
 /tmp
 
 .DS_Store
+
+# Ignore local env
+/config/local_env.yml
